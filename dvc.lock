@@ -1,0 +1,26 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/data/prepare.py
+    deps:
+    - path: data/raw/winequality-red.csv
+      hash: md5
+      md5: 2daeecee174368f8a33b82c8cccae3a5
+      size: 84199
+    - path: src/data/prepare.py
+      hash: md5
+      md5: 8d9a5a2a54f44593f851be36f92a8727
+      size: 572
+    params:
+      params.yaml:
+        prepare.seed: 42
+        prepare.test_size: 0.2
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: fe840a36a7904b418245a78fcf3d1b54
+      size: 18861
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 3b932872e56b00beef9a9ab67cd0c7ec
+      size: 74879
