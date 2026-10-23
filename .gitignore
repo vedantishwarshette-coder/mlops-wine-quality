@@ -1,0 +1,9 @@
+.venv/
+mlops-project/
+__pycache__/
+*.pyc
+mlflow.db
+mlflow_wine.db
+mlartifacts/
+artifacts_store/
+confusion_matrix.png
