@@ -10,3 +10,9 @@ stages:
     outs:
       - data/processed/train.csv
       - data/processed/test.csv
+  train:
+    cmd: python src/training/train.py
+    deps:
+      - src/training/train.py
+      - data/processed/train.csv
+      - data/processed/test.csv
