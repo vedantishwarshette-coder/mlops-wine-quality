@@ -1,0 +1,10 @@
+mlflow
+scikit-learn
+pandas
+matplotlib
+pyyaml
+fastapi
+uvicorn
+httpx
+pytest
+dvc
