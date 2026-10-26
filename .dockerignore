@@ -1,0 +1,12 @@
+.venv
+mlops-project
+.git
+.dvc
+.github
+tests
+artifacts_store
+mlflow.db
+mlflow_wine.db
+__pycache__
+*.pyc
+confusion_matrix.png
