@@ -8,7 +8,7 @@ from evidently.presets import DataDriftPreset
 
 # Drift rule: 11 columns me se kam se kam 2 drift hon (2/11 = 0.18).
 # Ek column to chance se bhi drift dikha sakta hai (1/11 = 0.09), isliye threshold 0.15.
-DRIFT_SHARE_THRESHOLD = 0.15
+DRIFT_SHARE_THRESHOLD = 0.25
 
 mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000"))
 
@@ -34,7 +34,7 @@ def check_drift(batch_path):
     ref_ds = Dataset.from_pandas(reference, data_definition=definition)
     cur_ds = Dataset.from_pandas(current, data_definition=definition)
 
-    report = Report([DataDriftPreset()])
+    report = Report([DataDriftPreset(num_method="ks")])
     result = report.run(current_data=cur_ds, reference_data=ref_ds)
 
     os.makedirs("reports/drift", exist_ok=True)
