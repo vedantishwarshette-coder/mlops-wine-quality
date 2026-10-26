@@ -6,8 +6,8 @@ import pandas as pd
 from evidently import DataDefinition, Dataset, Report
 from evidently.presets import DataDriftPreset
 
-# Drift rule: 11 columns me se kitne drift hue. 0.15 matlab kam se kam 2 columns
-# (2/11 = 0.18). Ek column to sirf ittefaq se bhi drift dikha sakta hai (1/11 = 0.09).
+# Drift rule: 11 columns me se kam se kam 2 drift hon (2/11 = 0.18).
+# Ek column to chance se bhi drift dikha sakta hai (1/11 = 0.09), isliye threshold 0.15.
 DRIFT_SHARE_THRESHOLD = 0.15
 
 mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000"))
@@ -16,10 +16,13 @@ mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", "http://127.0.0.1:
 def get_drift_numbers(result):
     data = result.dict()
     for metric in data["metrics"]:
-        if str(metric["metric_id"]).startswith("DriftedColumnsCount"):
-            return metric["value"]["count"], metric["value"]["share"]
-    print("Result ke metric ids:", [m["metric_id"] for m in data["metrics"]])
-    raise RuntimeError("DriftedColumnsCount metric nahi mila")
+        value = metric.get("value")
+        if isinstance(value, dict) and "count" in value and "share" in value:
+            return value["count"], value["share"]
+    print("top-level keys:", list(data.keys()))
+    for metric in data["metrics"][:3]:
+        print(metric)
+    raise RuntimeError("count/share wala metric nahi mila")
 
 
 def check_drift(batch_path):
