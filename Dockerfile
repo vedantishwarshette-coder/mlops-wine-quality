@@ -4,7 +4,7 @@ WORKDIR /app
 ENV MPLCONFIGDIR=/tmp PYTHONUNBUFFERED=1
 
 COPY requirements-api.txt .
-RUN pip install --no-cache-dir -r requirements-api.txt
+RUN pip install --no-cache-dir --default-timeout=120 --retries 10 -r requirements-api.txt
 
 COPY src ./src
 COPY params.yaml .
