@@ -8,3 +8,4 @@ uvicorn
 httpx
 pytest
 dvc
+pandera
