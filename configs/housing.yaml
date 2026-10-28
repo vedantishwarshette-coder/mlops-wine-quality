@@ -1,0 +1,19 @@
+name: housing
+experiment: housing-price
+model_name: housing-regressor
+task: regression
+metric: r2
+nested: true
+margin: 0.005
+data:
+  train: data/processed/housing_train.csv
+  test: data/processed/housing_test.csv
+  target: MedHouseVal
+candidates:
+  - type: ridge
+    grid:
+      alpha: [0.1, 1, 10, 100]
+  - type: gradient_boosting
+    grid:
+      n_estimators: [100, 200]
+      max_depth: [2, 3, 4, 5]

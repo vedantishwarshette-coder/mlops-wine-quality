@@ -11,3 +11,4 @@ data/monitoring/
 reports/
 data/monitoring/
 reports/
+data/processed/housing_*.csv

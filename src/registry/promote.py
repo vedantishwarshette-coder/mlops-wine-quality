@@ -1,29 +1,39 @@
+import argparse
 import os
 import sys
 
 import mlflow
 import mlflow.sklearn
 import pandas as pd
+import yaml
 from mlflow import MlflowClient
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, r2_score
+
+parser = argparse.ArgumentParser()
+parser.add_argument("since", nargs="?", type=int, default=0)  # start time (ms)
+parser.add_argument("--config", default="configs/wine.yaml")
+args = parser.parse_args()
+
+cfg = yaml.safe_load(open(args.config))
+NAME = cfg["model_name"]
+METRIC = cfg["metric"]
+MARGIN = cfg.get("margin", 0.005)
+score_fn = {"f1": f1_score, "r2": r2_score}[METRIC]
 
 mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000"))
-NAME = "wine-quality-classifier"
-MARGIN = 0.005  # naya model itna behtar hona chahiye
-
-# optional: pehla argument = start time (milliseconds). Sirf is ke baad ke runs dekho.
-since_ms = int(sys.argv[1]) if len(sys.argv) > 1 else 0
-
 client = MlflowClient()
-test = pd.read_csv("data/processed/test.csv")
-X_test, y_test = test.drop(columns=["good"]), test["good"]
 
-# 1. sabse achha (latest) run dhundo
-exp = mlflow.get_experiment_by_name("wine-quality")
+test = pd.read_csv(cfg["data"]["test"])
+text_col = cfg["data"].get("text_column")
+X_test = test[text_col] if text_col else test.drop(columns=[cfg["data"]["target"]])
+y_test = test[cfg["data"]["target"]]
+
+# 1. sabse achha run (parent runs me ye metric nahi hota, isliye wo chhoot jate hain)
+exp = mlflow.get_experiment_by_name(cfg["experiment"])
 runs = mlflow.search_runs(
     [exp.experiment_id],
-    filter_string=f"attributes.start_time >= {since_ms}",
-    order_by=["metrics.f1 DESC"],
+    filter_string=f"attributes.start_time >= {args.since} and metrics.{METRIC} >= -1000",
+    order_by=[f"metrics.{METRIC} DESC"],
     max_results=1,
 )
 if runs.empty:
@@ -31,20 +41,20 @@ if runs.empty:
     sys.exit(2)
 best = runs.iloc[0]
 
-# 2. use register karo
+# 2. register karo
 mv = mlflow.register_model(f"runs:/{best.run_id}/model", NAME)
 new_version = mv.version
-cand_f1 = f1_score(y_test, mlflow.sklearn.load_model(f"models:/{NAME}/{new_version}").predict(X_test))
+cand = score_fn(y_test, mlflow.sklearn.load_model(f"models:/{NAME}/{new_version}").predict(X_test))
 
 # 3. purane champion se compare karo
 try:
     client.get_model_version_by_alias(NAME, "champion")
-    champ_f1 = f1_score(y_test, mlflow.sklearn.load_model(f"models:/{NAME}@champion").predict(X_test))
+    champ = score_fn(y_test, mlflow.sklearn.load_model(f"models:/{NAME}@champion").predict(X_test))
     has_champ = True
 except Exception:
-    champ_f1, has_champ = 0.0, False
+    champ, has_champ = 0.0, False
 
-if (not has_champ) or cand_f1 >= champ_f1 + MARGIN:
+if (not has_champ) or cand >= champ + MARGIN:
     client.set_registered_model_alias(NAME, "champion", new_version)
     decision = "promoted"
 else:
@@ -52,5 +62,5 @@ else:
     decision = "rejected"
 
 client.set_model_version_tag(NAME, new_version, "decision", decision)
-client.set_model_version_tag(NAME, new_version, "f1_diff", str(round(cand_f1 - champ_f1, 4)))
-print(f"candidate f1={cand_f1:.3f} champion f1={champ_f1:.3f} -> {decision}")
+client.set_model_version_tag(NAME, new_version, f"{METRIC}_diff", str(round(cand - champ, 4)))
+print(f"candidate {METRIC}={cand:.3f} champion {METRIC}={champ:.3f} -> {decision}")
