@@ -127,13 +127,17 @@ for cand in cfg["candidates"]:
                 })
                 mlflow.log_artifact(save_plot(y_test, pred))
 
-                sig = infer_signature(X_train, model.predict(X_train))
+
+                print(model_type, params, cfg["metric"], "=", round(scores[cfg["metric"]], 3))
+                if text_col:
+                    sig, example = None, X_train.head(3).tolist()
+                else:
+                    sig = infer_signature(X_train, model.predict(X_train))
+                    example = X_train.head(3)
                 mlflow.sklearn.log_model(
                     model, "model",
                     signature=sig,
-                    input_example=X_train.head(3),
+                    input_example=example,
                     serialization_format="cloudpickle",
                 )
-                print(model_type, params, cfg["metric"], "=", round(scores[cfg["metric"]], 3))
-
 # Registration aur champion ka faisla sirf promote.py karta hai
