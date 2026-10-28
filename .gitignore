@@ -13,3 +13,5 @@ data/monitoring/
 reports/
 data/processed/housing_*.csv
 data/processed/spam_*.csv
+residuals.png
+confusion_matrix.png
