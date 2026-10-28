@@ -24,7 +24,7 @@ print("Drift mila, retraining shuru.")
 start_ms = int(time.time() * 1000)
 
 # 2. naye labeled data ke saath retrain (naye runs MLflow me jayenge)
-if run([sys.executable, "src/training/train.py", LABELED]) != 0:
+if run([sys.executable, "src/training/train.py", "--config", "configs/wine.yaml", "--extra", LABELED]) != 0:
     print("Training fail hui.")
     sys.exit(1)
 
