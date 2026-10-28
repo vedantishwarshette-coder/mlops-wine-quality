@@ -33,7 +33,8 @@ class WineInput(BaseModel):
     alcohol: float = Field(ge=5, le=16)
 
 app = FastAPI(title="Wine Quality Service")
-
+from src.serving.extra_models import router as extra_router
+app.include_router(extra_router)
 
 @app.get("/health")
 def health():
