@@ -8,6 +8,8 @@ from fastapi.responses import HTMLResponse
 from mlflow import MlflowClient
 from pydantic import BaseModel, Field
 
+from src.serving.extra_models import router as extra_router
+
 MODEL_NAME = "wine-quality-classifier"
 EXPERIMENT = "wine-quality"
 
@@ -33,10 +35,10 @@ class WineInput(BaseModel):
     sulphates: float = Field(ge=0, le=3)
     alcohol: float = Field(ge=5, le=16)
 
-app = FastAPI(title="Wine Quality Service")
-from src.serving.extra_models import router as extra_router
 
+app = FastAPI(title="Wine Quality Service")
 app.include_router(extra_router)
+
 
 @app.get("/health")
 def health():
@@ -66,8 +68,14 @@ def model_info():
         "run_id": mv.run_id,
         "metrics": run.data.metrics,
         "params": run.data.params,
-        "tags": {k: v for k, v in run.data.tags.items() if k in ("git_commit", "model_type", "author")},
+        "tags": {k: v for k, v in run.data.tags.items()
+                 if k in ("git_commit", "model_type", "author")},
     }
+
+
+def _value(row, col):
+    v = row.get(col)
+    return None if pd.isna(v) else v
 
 
 @app.get("/runs")
@@ -76,17 +84,14 @@ def runs():
                             order_by=["metrics.f1 DESC"], max_results=15)
     out = []
     for _, r in df.iterrows():
-        def g(col):
-            v = r.get(col)
-            return None if pd.isna(v) else v
         out.append({
             "run_id": r["run_id"][:8],
-            "model_type": g("params.model_type"),
-            "f1": g("metrics.f1"),
-            "accuracy": g("metrics.accuracy"),
-            "C": g("params.C"),
-            "n_estimators": g("params.n_estimators"),
-            "max_depth": g("params.max_depth"),
+            "model_type": _value(r, "params.model_type"),
+            "f1": _value(r, "metrics.f1"),
+            "accuracy": _value(r, "metrics.accuracy"),
+            "C": _value(r, "params.C"),
+            "n_estimators": _value(r, "params.n_estimators"),
+            "max_depth": _value(r, "params.max_depth"),
         })
     return out
 
