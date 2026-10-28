@@ -11,8 +11,9 @@ stages:
       - data/processed/train.csv
       - data/processed/test.csv
   train:
-    cmd: python src/training/train.py
+    cmd: python src/training/train.py --config configs/wine.yaml
     deps:
       - src/training/train.py
+      - configs/wine.yaml
       - data/processed/train.csv
       - data/processed/test.csv
