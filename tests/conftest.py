@@ -2,10 +2,10 @@ import os
 import sys
 from pathlib import Path
 
+import mlflow
 import numpy as np
 import pandas as pd
 import pytest
-import mlflow
 from mlflow import MlflowClient
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score
@@ -54,5 +54,6 @@ def api_client(tmp_path_factory):
     MlflowClient().set_registered_model_alias(MODEL_NAME, "champion", 1)
 
     from fastapi.testclient import TestClient
+
     from src.serving.app import app
     return TestClient(app)

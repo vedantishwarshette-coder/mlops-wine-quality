@@ -1,4 +1,5 @@
 import os
+
 import mlflow
 import mlflow.sklearn
 import pandas as pd
@@ -34,6 +35,7 @@ class WineInput(BaseModel):
 
 app = FastAPI(title="Wine Quality Service")
 from src.serving.extra_models import router as extra_router
+
 app.include_router(extra_router)
 
 @app.get("/health")

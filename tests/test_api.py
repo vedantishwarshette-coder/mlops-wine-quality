@@ -1,8 +1,7 @@
 from pathlib import Path
 
 import yaml
-
-from conftest import SAMPLE, COLUMNS
+from conftest import COLUMNS, SAMPLE
 
 ROOT = Path(__file__).resolve().parents[1]
 
