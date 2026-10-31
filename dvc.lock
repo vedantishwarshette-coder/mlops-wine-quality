@@ -41,8 +41,8 @@ stages:
       size: 74879
     - path: src/training/train.py
       hash: md5
-      md5: f8149b3275b2ffc2231556b7ea520229
-      size: 6312
+      md5: 08af5b2120e066a55eb56ad167bd985b
+      size: 6318
     outs:
     - path: metrics/wine.json
       hash: md5
@@ -81,8 +81,8 @@ stages:
       size: 1533174
     - path: src/training/train.py
       hash: md5
-      md5: f8149b3275b2ffc2231556b7ea520229
-      size: 6312
+      md5: 08af5b2120e066a55eb56ad167bd985b
+      size: 6318
     outs:
     - path: metrics/housing.json
       hash: md5
@@ -122,8 +122,8 @@ stages:
       size: 377085
     - path: src/training/train.py
       hash: md5
-      md5: f8149b3275b2ffc2231556b7ea520229
-      size: 6312
+      md5: 08af5b2120e066a55eb56ad167bd985b
+      size: 6318
     outs:
     - path: metrics/spam.json
       hash: md5
