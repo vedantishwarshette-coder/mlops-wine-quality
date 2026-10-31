@@ -1,11 +1,11 @@
 import argparse
 import itertools
+import json
 import os
 import subprocess
 from contextlib import nullcontext
 
 import matplotlib
-
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import mlflow
@@ -17,14 +17,8 @@ from mlflow.models import infer_signature
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression, Ridge
-from sklearn.metrics import (
-    ConfusionMatrixDisplay,
-    accuracy_score,
-    f1_score,
-    mean_absolute_error,
-    mean_squared_error,
-    r2_score,
-)
+from sklearn.metrics import (ConfusionMatrixDisplay, accuracy_score, f1_score,
+                             mean_absolute_error, mean_squared_error, r2_score)
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -40,15 +34,29 @@ target = cfg["data"]["target"]
 text_col = cfg["data"].get("text_column")
 nested = cfg.get("nested", False)
 
+DVC_FILES = {
+    "wine": "data/raw/winequality-red.csv.dvc",
+    "housing": "data/raw/housing.csv.dvc",
+    "spam": "data/raw/SMSSpamCollection.dvc",
+}
+
 mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000"))
 mlflow.set_experiment(cfg["experiment"])
 
+
+def data_hash():
+    path = DVC_FILES.get(cfg["name"])
+    if path and os.path.exists(path):
+        return yaml.safe_load(open(path))["outs"][0]["md5"][:8]
+    return "unknown"
+
+
 train = pd.read_csv(cfg["data"]["train"])
 test = pd.read_csv(cfg["data"]["test"])
-data_tag = "original"
+data_tag = data_hash()
 if args.extra:
     train = pd.concat([train, pd.read_csv(args.extra)], ignore_index=True)
-    data_tag = os.path.basename(args.extra)
+    data_tag = data_tag + "+" + os.path.basename(args.extra)
 
 
 def split(df):
@@ -108,6 +116,8 @@ def save_plot(y_true, pred):
     return path
 
 
+best = {"value": -1e9}
+
 for cand in cfg["candidates"]:
     model_type = cand["type"]
     grid = cand.get("grid", {})
@@ -134,8 +144,6 @@ for cand in cfg["candidates"]:
                 })
                 mlflow.log_artifact(save_plot(y_test, pred))
 
-
-                print(model_type, params, cfg["metric"], "=", round(scores[cfg["metric"]], 3))
                 if text_col:
                     sig, example = None, X_train.head(3).tolist()
                 else:
@@ -147,4 +155,23 @@ for cand in cfg["candidates"]:
                     input_example=example,
                     serialization_format="cloudpickle",
                 )
+
+                value = scores[cfg["metric"]]
+                print(model_type, params, cfg["metric"], "=", round(value, 3))
+                if value > best["value"]:
+                    best = {
+                        "metric": cfg["metric"],
+                        "value": round(value, 6),
+                        "model_type": model_type,
+                        "params": {k: str(v) for k, v in params.items()},
+                        "data_version": data_tag,
+                    }
+
+# DVC metrics file (retraining ke time nahi badalte, taaki dvc status saaf rahe)
+if not args.extra:
+    os.makedirs("metrics", exist_ok=True)
+    with open(f"metrics/{cfg['name']}.json", "w") as f:
+        json.dump(best, f, indent=2)
+    print("best:", best)
+
 # Registration aur champion ka faisla sirf promote.py karta hai

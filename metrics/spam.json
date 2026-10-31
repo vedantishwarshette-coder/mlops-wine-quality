@@ -1,0 +1,9 @@
+{
+  "metric": "f1",
+  "value": 0.946996,
+  "model_type": "tfidf_nb",
+  "params": {
+    "alpha": "0.01"
+  },
+  "data_version": "1949b64a"
+}

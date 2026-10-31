@@ -1,0 +1,10 @@
+{
+  "metric": "r2",
+  "value": 0.829235,
+  "model_type": "gradient_boosting",
+  "params": {
+    "n_estimators": "200",
+    "max_depth": "5"
+  },
+  "data_version": "fa9fe4cf"
+}

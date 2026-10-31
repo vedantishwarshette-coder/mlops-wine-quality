@@ -9,7 +9,7 @@ stages:
       size: 84199
     - path: src/data/prepare.py
       hash: md5
-      md5: 8d9a5a2a54f44593f851be36f92a8727
+      md5: c7d824e62130199af80c80901ac34531
       size: 572
     params:
       params.yaml:
@@ -25,8 +25,12 @@ stages:
       md5: 3b932872e56b00beef9a9ab67cd0c7ec
       size: 74879
   train:
-    cmd: python src/training/train.py
+    cmd: python src/training/train.py --config configs/wine.yaml
     deps:
+    - path: configs/wine.yaml
+      hash: md5
+      md5: 98bd32c13f0e9079f32d65be17df9dda
+      size: 373
     - path: data/processed/test.csv
       hash: md5
       md5: fe840a36a7904b418245a78fcf3d1b54
@@ -37,5 +41,107 @@ stages:
       size: 74879
     - path: src/training/train.py
       hash: md5
-      md5: d425e6bc3ee5f2ff0b2228b8f025c2f0
-      size: 2960
+      md5: f8149b3275b2ffc2231556b7ea520229
+      size: 6312
+    outs:
+    - path: metrics/wine.json
+      hash: md5
+      md5: 67a50e80021154e8bc5acb0b15ea25fa
+      size: 183
+  evaluate:
+    cmd: python src/training/evaluate.py --config configs/wine.yaml --gate 0.75
+    deps:
+    - path: metrics/wine.json
+      hash: md5
+      md5: 67a50e80021154e8bc5acb0b15ea25fa
+      size: 183
+    - path: src/training/evaluate.py
+      hash: md5
+      md5: ccc32bc75f673a8c158f3e8413426a3a
+      size: 708
+    outs:
+    - path: metrics/wine_gate.json
+      hash: md5
+      md5: 14a205f3235cae6e18a5bc130b9aff89
+      size: 80
+  train_housing:
+    cmd: python src/training/train.py --config configs/housing.yaml
+    deps:
+    - path: configs/housing.yaml
+      hash: md5
+      md5: e47526992bd019ddc4496bbaf2014b87
+      size: 420
+    - path: data/processed/housing_test.csv
+      hash: md5
+      md5: f2c2766a8557fcd5cd58b63f4274b957
+      size: 382708
+    - path: data/processed/housing_train.csv
+      hash: md5
+      md5: 4985174206dabb123c07e04c64d15f0a
+      size: 1533174
+    - path: src/training/train.py
+      hash: md5
+      md5: f8149b3275b2ffc2231556b7ea520229
+      size: 6312
+    outs:
+    - path: metrics/housing.json
+      hash: md5
+      md5: 1d0607272c440046c146d30681b9388d
+      size: 184
+  evaluate_housing:
+    cmd: python src/training/evaluate.py --config configs/housing.yaml --gate 
+      0.75
+    deps:
+    - path: metrics/housing.json
+      hash: md5
+      md5: 1d0607272c440046c146d30681b9388d
+      size: 184
+    - path: src/training/evaluate.py
+      hash: md5
+      md5: ccc32bc75f673a8c158f3e8413426a3a
+      size: 708
+    outs:
+    - path: metrics/housing_gate.json
+      hash: md5
+      md5: 1c20d441d0ac331b1caecaff1fd6d639
+      size: 80
+  train_spam:
+    cmd: python src/training/train.py --config configs/spam.yaml
+    deps:
+    - path: configs/spam.yaml
+      hash: md5
+      md5: 21c16b637a1e3b718fb5ffc30f8ce0f7
+      size: 391
+    - path: data/processed/spam_test.csv
+      hash: md5
+      md5: 647a30700f440e2f827e442cc507fc63
+      size: 97412
+    - path: data/processed/spam_train.csv
+      hash: md5
+      md5: 085f79577f3cea06213f2f9ddfa8d4c1
+      size: 377085
+    - path: src/training/train.py
+      hash: md5
+      md5: f8149b3275b2ffc2231556b7ea520229
+      size: 6312
+    outs:
+    - path: metrics/spam.json
+      hash: md5
+      md5: 78e42d63c2fa4f69e044bdb99bd03faa
+      size: 146
+  evaluate_spam:
+    cmd: python src/training/evaluate.py --config configs/spam.yaml --gate 0.90
+    deps:
+    - path: metrics/spam.json
+      hash: md5
+      md5: 78e42d63c2fa4f69e044bdb99bd03faa
+      size: 146
+    - path: src/training/evaluate.py
+      hash: md5
+      md5: ccc32bc75f673a8c158f3e8413426a3a
+      size: 708
+    outs:
+    - path: metrics/spam_gate.json
+      hash: md5
+      md5: e2f093a8c26a7b96bad53588d1be5d6c
+      size: 79

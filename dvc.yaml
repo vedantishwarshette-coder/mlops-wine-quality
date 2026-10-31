@@ -17,3 +17,50 @@ stages:
       - configs/wine.yaml
       - data/processed/train.csv
       - data/processed/test.csv
+    metrics:
+      - metrics/wine.json:
+          cache: false
+  evaluate:
+    cmd: python src/training/evaluate.py --config configs/wine.yaml --gate 0.75
+    deps:
+      - src/training/evaluate.py
+      - metrics/wine.json
+    metrics:
+      - metrics/wine_gate.json:
+          cache: false
+  train_housing:
+    cmd: python src/training/train.py --config configs/housing.yaml
+    deps:
+      - src/training/train.py
+      - configs/housing.yaml
+      - data/processed/housing_train.csv
+      - data/processed/housing_test.csv
+    metrics:
+      - metrics/housing.json:
+          cache: false
+  evaluate_housing:
+    cmd: python src/training/evaluate.py --config configs/housing.yaml --gate 0.75
+    deps:
+      - src/training/evaluate.py
+      - metrics/housing.json
+    metrics:
+      - metrics/housing_gate.json:
+          cache: false
+  train_spam:
+    cmd: python src/training/train.py --config configs/spam.yaml
+    deps:
+      - src/training/train.py
+      - configs/spam.yaml
+      - data/processed/spam_train.csv
+      - data/processed/spam_test.csv
+    metrics:
+      - metrics/spam.json:
+          cache: false
+  evaluate_spam:
+    cmd: python src/training/evaluate.py --config configs/spam.yaml --gate 0.90
+    deps:
+      - src/training/evaluate.py
+      - metrics/spam.json
+    metrics:
+      - metrics/spam_gate.json:
+          cache: false

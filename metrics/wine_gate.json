@@ -1,0 +1,6 @@
+{
+  "metric": "f1",
+  "value": 0.824926,
+  "gate": 0.75,
+  "passed": true
+}
