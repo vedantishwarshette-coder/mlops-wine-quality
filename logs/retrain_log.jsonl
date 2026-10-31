@@ -1,0 +1,1 @@
+{"batch": "data\\monitoring\\shifted_batch.csv", "drift": true, "action": "rejected", "detail": "candidate f1=0.838 champion f1=0.838 -> rejected", "ts": "2026-10-31T08:45:36.053984+00:00"}

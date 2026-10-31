@@ -6,6 +6,7 @@ import subprocess
 from contextlib import nullcontext
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import mlflow
@@ -17,8 +18,14 @@ from mlflow.models import infer_signature
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression, Ridge
-from sklearn.metrics import (ConfusionMatrixDisplay, accuracy_score, f1_score,
-                             mean_absolute_error, mean_squared_error, r2_score)
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    accuracy_score,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score,
+)
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler

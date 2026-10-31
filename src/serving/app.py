@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse
 from mlflow import MlflowClient
 from pydantic import BaseModel, Field
 
-from src.serving.extra_models import router as extra_router
+from src.serving.extra_models import setup as setup_extra
 
 MODEL_NAME = "wine-quality-classifier"
 EXPERIMENT = "wine-quality"
@@ -37,7 +37,7 @@ class WineInput(BaseModel):
 
 
 app = FastAPI(title="Wine Quality Service")
-app.include_router(extra_router)
+setup_extra(app)  # housing/spam routes, /models, /reload aur prediction log
 
 
 @app.get("/health")
